@@ -79,18 +79,18 @@
     }
 
     .eye-svg {
-      width: clamp(128px, 21vw, 188px);
+      width: clamp(134px, 22vw, 198px);
       height: auto;
       overflow: visible;
     }
     .eye-svg.right { transform: scaleX(-1); }
 
     .iris-nebula {
-      transform-origin: 108px 70px;
-      animation: nebulaDrift 20s linear infinite;
+      transform-origin: 112px 62px;
+      animation: nebulaDrift 22s linear infinite;
     }
-    .eyelid-top { transform-origin: 110px 0px; transform: scaleY(0); }
-    .eyelid-bottom { transform-origin: 110px 148px; transform: scaleY(0); }
+    .eyelid-top { transform-origin: 112px 0px; transform: scaleY(0); }
+    .eyelid-bottom { transform-origin: 112px 132px; transform: scaleY(0); }
     body.blink-run .eyelid-top { animation: blinkTop 0.36s cubic-bezier(0.45, 0, 0.55, 1) forwards; }
     body.blink-run .eyelid-bottom { animation: blinkBottom 0.36s cubic-bezier(0.45, 0, 0.55, 1) forwards; }
 
@@ -238,152 +238,149 @@
         <feGaussianBlur in="warped" stdDeviation="1.4" />
       </filter>
 
-      <!-- Reusable 24 fine radial iris fibers centered at (108, 70) -->
-      <g id="six-iris-fibers" stroke="#0b3b6e" stroke-linecap="round" opacity="0.52">
-        <line x1="108" y1="55" x2="108" y2="34" stroke-width="1.05" />
-        <line x1="108" y1="85" x2="108" y2="106" stroke-width="1.05" />
-        <line x1="93"  y1="70" x2="72"  y2="70" stroke-width="0.95" />
-        <line x1="123" y1="70" x2="144" y2="70" stroke-width="0.95" />
-        <line x1="97"  y1="59" x2="81"  y2="43" stroke-width="0.95" />
-        <line x1="119" y1="59" x2="135" y2="43" stroke-width="0.95" />
-        <line x1="97"  y1="81" x2="81"  y2="97" stroke-width="0.95" />
-        <line x1="119" y1="81" x2="135" y2="97" stroke-width="0.95" />
-        <line x1="102" y1="56" x2="94"  y2="36" stroke-width="0.72" />
-        <line x1="114" y1="56" x2="122" y2="36" stroke-width="0.72" />
-        <line x1="102" y1="84" x2="94"  y2="104" stroke-width="0.72" />
-        <line x1="114" y1="84" x2="122" y2="104" stroke-width="0.72" />
-        <line x1="94"  y1="64" x2="74"  y2="56" stroke-width="0.72" />
-        <line x1="122" y1="64" x2="142" y2="56" stroke-width="0.72" />
-        <line x1="94"  y1="76" x2="74"  y2="84" stroke-width="0.72" />
-        <line x1="122" y1="76" x2="142" y2="84" stroke-width="0.72" />
-        <line x1="99"  y1="57" x2="87"  y2="39" stroke-width="0.65" />
-        <line x1="117" y1="57" x2="129" y2="39" stroke-width="0.65" />
-        <line x1="99"  y1="83" x2="87"  y2="101" stroke-width="0.65" />
-        <line x1="117" y1="83" x2="129" y2="101" stroke-width="0.65" />
-        <line x1="93"  y1="67" x2="72"  y2="63" stroke-width="0.6" />
-        <line x1="123" y1="67" x2="144" y2="63" stroke-width="0.6" />
-        <line x1="93"  y1="73" x2="72"  y2="77" stroke-width="0.6" />
-        <line x1="123" y1="73" x2="144" y2="77" stroke-width="0.6" />
+      <!-- Reusable 24 fine radial iris fibers centered at (112, 62) -->
+      <g id="six-iris-fibers" stroke="#0b3b6e" stroke-linecap="round" opacity="0.5">
+        <line x1="112" y1="48" x2="112" y2="27" stroke-width="1.0" />
+        <line x1="112" y1="76" x2="112" y2="97" stroke-width="1.0" />
+        <line x1="98"  y1="62" x2="77"  y2="62" stroke-width="0.9" />
+        <line x1="126" y1="62" x2="147" y2="62" stroke-width="0.9" />
+        <line x1="102" y1="52" x2="86"  y2="36" stroke-width="0.9" />
+        <line x1="122" y1="52" x2="138" y2="36" stroke-width="0.9" />
+        <line x1="102" y1="72" x2="86"  y2="88" stroke-width="0.9" />
+        <line x1="122" y1="72" x2="138" y2="88" stroke-width="0.9" />
+        <line x1="106" y1="49" x2="98"  y2="29" stroke-width="0.7" />
+        <line x1="118" y1="49" x2="126" y2="29" stroke-width="0.7" />
+        <line x1="106" y1="75" x2="98"  y2="95" stroke-width="0.7" />
+        <line x1="118" y1="75" x2="126" y2="95" stroke-width="0.7" />
+        <line x1="99"  y1="56" x2="79"  y2="48" stroke-width="0.7" />
+        <line x1="125" y1="56" x2="145" y2="48" stroke-width="0.7" />
+        <line x1="99"  y1="68" x2="79"  y2="76" stroke-width="0.7" />
+        <line x1="125" y1="68" x2="145" y2="76" stroke-width="0.7" />
+        <line x1="104" y1="50" x2="92"  y2="32" stroke-width="0.6" />
+        <line x1="120" y1="50" x2="132" y2="32" stroke-width="0.6" />
+        <line x1="104" y1="74" x2="92"  y2="92" stroke-width="0.6" />
+        <line x1="120" y1="74" x2="132" y2="92" stroke-width="0.6" />
+        <line x1="98"  y1="59" x2="77"  y2="55" stroke-width="0.6" />
+        <line x1="126" y1="59" x2="147" y2="55" stroke-width="0.6" />
+        <line x1="98"  y1="65" x2="77"  y2="69" stroke-width="0.6" />
+        <line x1="126" y1="65" x2="147" y2="69" stroke-width="0.6" />
       </g>
     </defs>
   </svg>
 
   <div class="six-eyes-overlay" id="sixEyesOverlay" aria-hidden="true">
-    <!-- LEFT EYE (Tall, expressive, gently arched MAPPA Gojo silhouette) -->
-    <svg class="eye-svg left" viewBox="0 0 220 148" xmlns="http://www.w3.org/2000/svg">
+    <!-- LEFT EYE (Calm, confident MAPPA male anime eye: tucked upper iris, sleek brow, sweeping lashes) -->
+    <svg class="eye-svg left" viewBox="0 0 228 132" xmlns="http://www.w3.org/2000/svg">
       <defs>
+        <!-- Natural anime eye opening: flatter sleek upper lid tucking top of iris, soft open lower curve -->
         <clipPath id="gojo-clip-left">
-          <path d="M 24,52 C 56,22 138,20 186,62 C 192,68 194,76 190,84 C 156,120 78,120 38,94 C 24,84 20,66 24,52 Z" />
+          <path d="M 28,44 C 66,28 140,28 188,58 C 194,63 196,72 192,80 C 166,104 92,106 50,90 C 32,82 24,62 28,44 Z" />
         </clipPath>
         <clipPath id="iris-clip-left">
-          <circle cx="108" cy="70" r="41" />
+          <circle cx="112" cy="62" r="39.5" />
         </clipPath>
       </defs>
 
-      <!-- Delicate double-eyelid fold arching cleanly over the lid -->
-      <path d="M 42,20 C 90,6 148,14 186,46" fill="none" stroke="rgba(216,210,236,0.36)" stroke-width="1.5" stroke-linecap="round" />
+      <!-- Subtle double-eyelid crease hugging the upper lid -->
+      <path d="M 42,24 C 86,14 144,16 184,42" fill="none" stroke="rgba(216,210,236,0.34)" stroke-width="1.35" stroke-linecap="round" />
 
       <g id="gojo-left-interior" clip-path="url(#gojo-clip-left)">
-        <!-- Luminous Sclera -->
-        <rect x="0" y="0" width="220" height="148" fill="url(#gojo-sclera)" />
+        <!-- Cool-shaded luminous sclera -->
+        <rect x="0" y="0" width="228" height="132" fill="url(#gojo-sclera)" />
 
-        <!-- MAPPA SIX EYES IRIS -->
+        <!-- MAPPA SIX EYES IRIS (top ~15% tucked naturally under upper lid for calm Gojo stare) -->
         <g clip-path="url(#iris-clip-left)">
-          <circle cx="108" cy="70" r="41" fill="url(#six-iris-base)" />
+          <circle cx="112" cy="62" r="39.5" fill="url(#six-iris-base)" />
 
           <!-- Billowing sunlit white cloud ring -->
           <g class="iris-nebula" filter="url(#iris-cloud-filter)" opacity="0.9">
-            <circle cx="108" cy="70" r="28" fill="none" stroke="#ffffff" stroke-width="10" stroke-dasharray="24 9 15 7 22 8" />
-            <ellipse cx="108" cy="98" rx="24" ry="10" fill="#ffffff" />
-            <ellipse cx="86"  cy="54" rx="12" ry="8" transform="rotate(-30 86 54)" fill="#e0faff" />
-            <ellipse cx="132" cy="56" rx="11" ry="7" transform="rotate(25 132 56)" fill="#ffffff" />
+            <circle cx="112" cy="62" r="27" fill="none" stroke="#ffffff" stroke-width="9.5" stroke-dasharray="23 9 15 7 21 8" />
+            <ellipse cx="112" cy="89" rx="23" ry="9" fill="#ffffff" />
+            <ellipse cx="92"  cy="47" rx="11" ry="7" transform="rotate(-28 92 47)" fill="#e0faff" />
+            <ellipse cx="134" cy="49" rx="10" ry="6" transform="rotate(24 134 49)" fill="#ffffff" />
           </g>
 
-          <circle cx="108" cy="70" r="41" fill="url(#six-iris-glow)" />
+          <circle cx="112" cy="62" r="39.5" fill="url(#six-iris-glow)" />
           <use href="#six-iris-fibers" />
-          <circle cx="108" cy="70" r="16" fill="none" stroke="rgba(12, 74, 110, 0.34)" stroke-width="1.2" />
+          <circle cx="112" cy="62" r="15.5" fill="none" stroke="rgba(12, 74, 110, 0.34)" stroke-width="1.15" />
 
           <!-- Deep navy slightly-oval pupil -->
-          <ellipse cx="108" cy="70" rx="6.8" ry="8.6" fill="url(#six-pupil-grad)" />
+          <ellipse cx="112" cy="62" rx="6.4" ry="8.2" fill="url(#six-pupil-grad)" />
 
           <!-- Upper iris shadow -->
-          <circle cx="108" cy="70" r="41" fill="url(#six-iris-top-shade)" />
+          <circle cx="112" cy="62" r="39.5" fill="url(#six-iris-top-shade)" />
 
           <!-- Crisp MAPPA white specular highlights -->
-          <ellipse cx="81" cy="76" rx="8.2" ry="4.0" transform="rotate(-24 81 76)" fill="#ffffff" />
-          <path d="M 104,50 Q 120,47 131,57" fill="none" stroke="#ffffff" stroke-width="3.6" stroke-linecap="round" opacity="0.95" />
-          <circle cx="96"  cy="52" r="2.3" fill="#ffffff" opacity="0.9" />
-          <circle cx="123" cy="90" r="2.6" fill="#ffffff" opacity="0.88" />
+          <ellipse cx="86" cy="68" rx="7.6" ry="3.7" transform="rotate(-24 86 68)" fill="#ffffff" />
+          <path d="M 108,43 Q 123,40 133,49" fill="none" stroke="#ffffff" stroke-width="3.3" stroke-linecap="round" opacity="0.95" />
+          <circle cx="100" cy="45" r="2.1" fill="#ffffff" opacity="0.9" />
+          <circle cx="126" cy="81" r="2.4" fill="#ffffff" opacity="0.86" />
         </g>
 
         <!-- Thick deep-navy outer limbal ring -->
-        <circle cx="108" cy="70" r="40.5" fill="none" stroke="#0a2859" stroke-width="3.6" />
-        <circle cx="108" cy="70" r="37" fill="none" stroke="#164e8a" stroke-width="1.3" stroke-dasharray="6 3 9 2" opacity="0.72" />
+        <circle cx="112" cy="62" r="39" fill="none" stroke="#0a2859" stroke-width="3.4" />
+        <circle cx="112" cy="62" r="35.6" fill="none" stroke="#164e8a" stroke-width="1.2" stroke-dasharray="6 3 9 2" opacity="0.7" />
 
-        <!-- Soft upper eyelid cast shadow -->
-        <path d="M 14,42 C 56,12 142,10 198,56 L 198,74 C 142,30 56,30 14,62 Z" fill="rgba(15, 32, 66, 0.24)" />
+        <!-- Soft upper eyelid cast shadow across sclera & top of iris -->
+        <path d="M 18,34 C 66,18 144,18 200,52 L 200,72 C 144,38 66,38 18,56 Z" fill="rgba(12, 28, 60, 0.28)" />
 
         <!-- Blink shutters -->
-        <rect class="eyelid-top" x="0" y="0" width="220" height="78" fill="#000000" />
-        <rect class="eyelid-bottom" x="0" y="70" width="220" height="78" fill="#000000" />
+        <rect class="eyelid-top" x="0" y="0" width="228" height="72" fill="#000000" />
+        <rect class="eyelid-bottom" x="0" y="60" width="228" height="72" fill="#000000" />
       </g>
 
-      <!-- GOJO'S FEATHERY LAVENDER-SILVER UPPER EYELASHES -->
-      <g fill="url(#lash-grad)" stroke="#5b5475" stroke-width="0.85" stroke-linejoin="round">
-        <!-- High, graceful upper lash arch -->
-        <path d="M 12,50 C 52,16 142,14 192,62 L 196,82 L 188,80 C 176,60 134,28 64,30 C 42,31 28,41 22,52 Z" />
-        <!-- Lush feathery lash tufts sweeping upward & outward -->
-        <path d="M 26,42 C 15,34 6,25 1,16 C 11,23 20,30 33,38 Z" />
-        <path d="M 38,34 C 27,24 19,15 13,6 C 23,14 32,22 46,31 Z" />
-        <path d="M 54,27 C 44,17 36,9 31,2 C 41,10 50,17 62,25 Z" />
-        <path d="M 74,23 C 66,14 59,7 55,1 C 64,8 72,14 82,22 Z" />
-        <path d="M 96,22 C 89,14 84,8 80,3 C 88,9 95,14 104,22 Z" />
-        <path d="M 118,24 C 113,17 109,12 106,8 C 113,13 118,18 126,26 Z" />
-        <!-- Sleek outer wing flick -->
-        <path d="M 19,52 C 11,53 5,50 1,45 C 8,48 14,49 23,49 Z" />
+      <!-- SLEEK SWEEPING LAVENDER-SILVER UPPER EYELASHES (Flowing outward along the lid, NOT sticking straight up) -->
+      <g fill="url(#lash-grad)" stroke="#5b5475" stroke-width="0.75" stroke-linejoin="round">
+        <!-- Main tapered upper lash line -->
+        <path d="M 14,42 C 58,22 142,22 192,58 L 196,74 L 189,72 C 176,56 136,34 68,35 C 44,36 30,42 22,47 Z" />
+        <!-- Sweeping outer side-swept lash wisps (horizontal-diagonal flow like MAPPA) -->
+        <path d="M 28,38 C 16,35 7,30 1,24 C 10,27 20,30 34,34 Z" />
+        <path d="M 40,33 C 28,28 18,22 11,16 C 21,20 32,25 47,29 Z" />
+        <path d="M 56,28 C 44,23 35,17 28,12 C 38,16 49,21 63,25 Z" />
+        <path d="M 76,26 C 65,21 57,17 51,12 C 60,16 70,20 84,24 Z" />
+        <path d="M 98,25 C 89,21 82,17 77,14 C 85,17 94,20 106,24 Z" />
+        <!-- Subtle outer tail flick -->
+        <path d="M 24,45 C 15,47 8,46 3,42 C 10,43 17,43 27,42 Z" />
       </g>
 
-      <!-- Soft rounded lower eyelid contour + delicate feathery lower lashes -->
-      <path d="M 190,84 C 156,120 78,120 38,94 C 24,84 20,66 24,52"
-            fill="none" stroke="#b9b2d1" stroke-width="1.7" stroke-linejoin="round" />
-      <g stroke="#c9c2e0" stroke-width="1.2" stroke-linecap="round" opacity="0.8">
-        <path d="M 46,98 L 38,107" />
-        <path d="M 60,105 L 53,115" />
-        <path d="M 76,110 L 71,120" />
-        <path d="M 94,113 L 91,123" />
-        <path d="M 112,114 L 111,124" />
-        <path d="M 130,113 L 132,122" />
+      <!-- Open anime lower lid (delicate curve only under the center-bottom, fading cleanly at sides) -->
+      <path d="M 184,84 C 158,104 94,106 54,91"
+            fill="none" stroke="#b9b2d1" stroke-width="1.5" stroke-linecap="round" opacity="0.85" />
+      <g stroke="#c9c2e0" stroke-width="1.05" stroke-linecap="round" opacity="0.7">
+        <path d="M 64,95 L 58,101" />
+        <path d="M 78,99 L 74,106" />
+        <path d="M 94,101 L 91,108" />
+        <path d="M 110,102 L 109,109" />
+        <path d="M 126,101 L 127,108" />
       </g>
     </svg>
 
     <!-- RIGHT EYE (Mirrored) -->
-    <svg class="eye-svg right" viewBox="0 0 220 148" xmlns="http://www.w3.org/2000/svg">
+    <svg class="eye-svg right" viewBox="0 0 228 132" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <clipPath id="gojo-clip-right">
-          <path d="M 24,52 C 56,22 138,20 186,62 C 192,68 194,76 190,84 C 156,120 78,120 38,94 C 24,84 20,66 24,52 Z" />
+          <path d="M 28,44 C 66,28 140,28 188,58 C 194,63 196,72 192,80 C 166,104 92,106 50,90 C 32,82 24,62 28,44 Z" />
         </clipPath>
       </defs>
-      <path d="M 42,20 C 90,6 148,14 186,46" fill="none" stroke="rgba(216,210,236,0.36)" stroke-width="1.5" stroke-linecap="round" />
+      <path d="M 42,24 C 86,14 144,16 184,42" fill="none" stroke="rgba(216,210,236,0.34)" stroke-width="1.35" stroke-linecap="round" />
       <g id="gojo-right-interior" clip-path="url(#gojo-clip-right)"></g>
-      <g fill="url(#lash-grad)" stroke="#5b5475" stroke-width="0.85" stroke-linejoin="round">
-        <path d="M 12,50 C 52,16 142,14 192,62 L 196,82 L 188,80 C 176,60 134,28 64,30 C 42,31 28,41 22,52 Z" />
-        <path d="M 26,42 C 15,34 6,25 1,16 C 11,23 20,30 33,38 Z" />
-        <path d="M 38,34 C 27,24 19,15 13,6 C 23,14 32,22 46,31 Z" />
-        <path d="M 54,27 C 44,17 36,9 31,2 C 41,10 50,17 62,25 Z" />
-        <path d="M 74,23 C 66,14 59,7 55,1 C 64,8 72,14 82,22 Z" />
-        <path d="M 96,22 C 89,14 84,8 80,3 C 88,9 95,14 104,22 Z" />
-        <path d="M 118,24 C 113,17 109,12 106,8 C 113,13 118,18 126,26 Z" />
-        <path d="M 19,52 C 11,53 5,50 1,45 C 8,48 14,49 23,49 Z" />
+      <g fill="url(#lash-grad)" stroke="#5b5475" stroke-width="0.75" stroke-linejoin="round">
+        <path d="M 14,42 C 58,22 142,22 192,58 L 196,74 L 189,72 C 176,56 136,34 68,35 C 44,36 30,42 22,47 Z" />
+        <path d="M 28,38 C 16,35 7,30 1,24 C 10,27 20,30 34,34 Z" />
+        <path d="M 40,33 C 28,28 18,22 11,16 C 21,20 32,25 47,29 Z" />
+        <path d="M 56,28 C 44,23 35,17 28,12 C 38,16 49,21 63,25 Z" />
+        <path d="M 76,26 C 65,21 57,17 51,12 C 60,16 70,20 84,24 Z" />
+        <path d="M 98,25 C 89,21 82,17 77,14 C 85,17 94,20 106,24 Z" />
+        <path d="M 24,45 C 15,47 8,46 3,42 C 10,43 17,43 27,42 Z" />
       </g>
-      <path d="M 190,84 C 156,120 78,120 38,94 C 24,84 20,66 24,52"
-            fill="none" stroke="#b9b2d1" stroke-width="1.7" stroke-linejoin="round" />
-      <g stroke="#c9c2e0" stroke-width="1.2" stroke-linecap="round" opacity="0.8">
-        <path d="M 46,98 L 38,107" />
-        <path d="M 60,105 L 53,115" />
-        <path d="M 76,110 L 71,120" />
-        <path d="M 94,113 L 91,123" />
-        <path d="M 112,114 L 111,124" />
-        <path d="M 130,113 L 132,122" />
+      <path d="M 184,84 C 158,104 94,106 54,91"
+            fill="none" stroke="#b9b2d1" stroke-width="1.5" stroke-linecap="round" opacity="0.85" />
+      <g stroke="#c9c2e0" stroke-width="1.05" stroke-linecap="round" opacity="0.7">
+        <path d="M 64,95 L 58,101" />
+        <path d="M 78,99 L 74,106" />
+        <path d="M 94,101 L 91,108" />
+        <path d="M 110,102 L 109,109" />
+        <path d="M 126,101 L 127,108" />
       </g>
     </svg>
   </div>
