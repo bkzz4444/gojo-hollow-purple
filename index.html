@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gojo Satoru — Unlimited Void & Hollow Purple (3D WebGL)</title>
+  <style>
+    :root {
+      --accent: #38bdf8;
+      --text-muted: rgba(255, 255, 255, 0.48);
+      --bar-idle: rgba(255, 255, 255, 0.16);
+    }
+
+    body[data-stage="1"] { --accent: #7dd3fc; }
+    body[data-stage="2"] { --accent: #0ea5e9; }
+    body[data-stage="3"] { --accent: #ef4444; }
+    body[data-stage="4"] { --accent: #c084fc; }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      background: #000000;
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    #webgl-container {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    /* Gojo's Six Eyes floating above the 3D WebGL scene */
+    .six-eyes-overlay {
+      position: fixed;
+      top: clamp(1.8rem, 6.5vh, 4rem);
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(2rem, 6vw, 4.6rem);
+      pointer-events: none;
+      transition: filter 0.6s ease, transform 0.18s ease-out;
+      will-change: filter, transform;
+    }
+
+    body[data-stage="1"] .six-eyes-overlay {
+      filter:
+        drop-shadow(0 0 12px rgba(103, 232, 249, 0.7))
+        drop-shadow(0 0 34px rgba(14, 165, 233, 0.35));
+    }
+    body[data-stage="2"] .six-eyes-overlay {
+      filter:
+        drop-shadow(0 0 16px rgba(56, 189, 248, 0.85))
+        drop-shadow(0 0 42px rgba(2, 132, 199, 0.5));
+    }
+    body[data-stage="3"] .six-eyes-overlay {
+      filter:
+        drop-shadow(0 0 14px rgba(56, 189, 248, 0.65))
+        drop-shadow(0 0 38px rgba(239, 68, 68, 0.55));
+    }
+    body[data-stage="4"] .six-eyes-overlay {
+      filter:
+        drop-shadow(0 0 18px rgba(165, 243, 252, 0.85))
+        drop-shadow(0 0 48px rgba(192, 132, 252, 0.8));
+    }
+
+    .eye-svg {
+      width: clamp(128px, 21vw, 188px);
+      height: auto;
+      overflow: visible;
+    }
+    .eye-svg.right { transform: scaleX(-1); }
+
+    .iris-nebula {
+      transform-origin: 108px 70px;
+      animation: nebulaDrift 20s linear infinite;
+    }
+    .eyelid-top { transform-origin: 110px 0px; transform: scaleY(0); }
+    .eyelid-bottom { transform-origin: 110px 148px; transform: scaleY(0); }
+    body.blink-run .eyelid-top { animation: blinkTop 0.36s cubic-bezier(0.45, 0, 0.55, 1) forwards; }
+    body.blink-run .eyelid-bottom { animation: blinkBottom 0.36s cubic-bezier(0.45, 0, 0.55, 1) forwards; }
+
+    @keyframes nebulaDrift { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes blinkTop    { 0% { transform: scaleY(0); } 45%, 55% { transform: scaleY(1); } 100% { transform: scaleY(0); } }
+    @keyframes blinkBottom { 0% { transform: scaleY(0); } 45%, 55% { transform: scaleY(0.86); } 100% { transform: scaleY(0); } }
+
+    /* Ultra-clean minimalist HUD at bottom */
+    .hud {
+      position: fixed;
+      bottom: clamp(1.8rem, 5vh, 3.2rem);
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.55rem;
+      pointer-events: auto;
+    }
+
+    .jp-title {
+      font-size: 0.78rem;
+      letter-spacing: 0.42em;
+      color: var(--accent);
+      text-shadow: 0 0 18px var(--accent);
+      transition: color 0.45s ease, text-shadow 0.45s ease;
+    }
+
+    .en-title {
+      font-size: 0.74rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 500;
+      transition: color 0.45s ease;
+    }
+
+    body[data-stage="4"] .en-title {
+      color: rgba(243, 232, 255, 0.85);
+    }
+
+    .progress-bars {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      margin-top: 0.25rem;
+    }
+
+    .bar-btn {
+      width: 32px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .bar-line {
+      width: 100%;
+      height: 2px;
+      border-radius: 2px;
+      background: var(--bar-idle);
+      transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.25s ease;
+    }
+
+    .bar-btn:hover .bar-line {
+      background: rgba(255, 255, 255, 0.55);
+    }
+
+    .bar-btn.active .bar-line {
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent);
+      transform: scaleY(1.5);
+    }
+  </style>
+
+  <!-- Three.js ES Module Import Map (zero build step, works directly on GitHub Pages) -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.168.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.168.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body data-stage="1">
+  <div id="webgl-container" title="Click to switch technique • Move mouse to orbit"></div>
+
+  <!-- Gojo's Six Eyes (MAPPA High-Detail Cloud-Sky Iris + Feathery Silver-Lavender Lashes) -->
+  <svg width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true">
+    <defs>
+      <!-- Soft luminous sclera with subtle cool shadow -->
+      <linearGradient id="gojo-sclera" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#b9cde0" />
+        <stop offset="32%" stop-color="#e8f2fc" />
+        <stop offset="78%" stop-color="#f8fbff" />
+        <stop offset="100%" stop-color="#ffffff" />
+      </linearGradient>
+
+      <!-- Vibrant MAPPA turquoise-sky base gradient -->
+      <radialGradient id="six-iris-base" cx="50%" cy="54%" r="54%">
+        <stop offset="0%" stop-color="#e0faff" />
+        <stop offset="34%" stop-color="#67e8f9" />
+        <stop offset="68%" stop-color="#22d3ee" />
+        <stop offset="88%" stop-color="#0284c7" />
+        <stop offset="100%" stop-color="#0a2a5e" />
+      </radialGradient>
+
+      <!-- Glowing lower cloud-light bounce -->
+      <radialGradient id="six-iris-glow" cx="50%" cy="74%" r="48%">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95" />
+        <stop offset="48%" stop-color="#a5f3fc" stop-opacity="0.55" />
+        <stop offset="100%" stop-color="#22d3ee" stop-opacity="0" />
+      </radialGradient>
+
+      <!-- Soft upper iris cast shadow -->
+      <linearGradient id="six-iris-top-shade" x1="0%" y1="0%" x2="0%" y2="48%">
+        <stop offset="0%" stop-color="#082046" stop-opacity="0.62" />
+        <stop offset="65%" stop-color="#0c4a6e" stop-opacity="0.16" />
+        <stop offset="100%" stop-color="#0c4a6e" stop-opacity="0" />
+      </linearGradient>
+
+      <!-- Deep navy pupil -->
+      <radialGradient id="six-pupil-grad" cx="50%" cy="46%" r="55%">
+        <stop offset="0%" stop-color="#061938" />
+        <stop offset="78%" stop-color="#0d356b" />
+        <stop offset="100%" stop-color="#1e6fa8" />
+      </radialGradient>
+
+      <!-- Lavender-silver eyelash gradient (authentic MAPPA color) -->
+      <linearGradient id="lash-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#f1effa" />
+        <stop offset="55%" stop-color="#d2cce6" />
+        <stop offset="100%" stop-color="#a9a0c7" />
+      </linearGradient>
+
+      <!-- Organic cloud-wisp filter for MAPPA sunlit sky clouds inside the iris -->
+      <filter id="iris-cloud-filter" x="-30%" y="-30%" width="160%" height="160%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="3" seed="7" result="noise" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="7" xChannelSelector="R" yChannelSelector="G" result="warped" />
+        <feGaussianBlur in="warped" stdDeviation="1.4" />
+      </filter>
+
+      <!-- Reusable 24 fine radial iris fibers centered at (108, 70) -->
+      <g id="six-iris-fibers" stroke="#0b3b6e" stroke-linecap="round" opacity="0.52">
+        <line x1="108" y1="55" x2="108" y2="34" stroke-width="1.05" />
+        <line x1="108" y1="85" x2="108" y2="106" stroke-width="1.05" />
+        <line x1="93"  y1="70" x2="72"  y2="70" stroke-width="0.95" />
+        <line x1="123" y1="70" x2="144" y2="70" stroke-width="0.95" />
+        <line x1="97"  y1="59" x2="81"  y2="43" stroke-width="0.95" />
+        <line x1="119" y1="59" x2="135" y2="43" stroke-width="0.95" />
+        <line x1="97"  y1="81" x2="81"  y2="97" stroke-width="0.95" />
+        <line x1="119" y1="81" x2="135" y2="97" stroke-width="0.95" />
+        <line x1="102" y1="56" x2="94"  y2="36" stroke-width="0.72" />
+        <line x1="114" y1="56" x2="122" y2="36" stroke-width="0.72" />
+        <line x1="102" y1="84" x2="94"  y2="104" stroke-width="0.72" />
+        <line x1="114" y1="84" x2="122" y2="104" stroke-width="0.72" />
+        <line x1="94"  y1="64" x2="74"  y2="56" stroke-width="0.72" />
+        <line x1="122" y1="64" x2="142" y2="56" stroke-width="0.72" />
+        <line x1="94"  y1="76" x2="74"  y2="84" stroke-width="0.72" />
+        <line x1="122" y1="76" x2="142" y2="84" stroke-width="0.72" />
+        <line x1="99"  y1="57" x2="87"  y2="39" stroke-width="0.65" />
+        <line x1="117" y1="57" x2="129" y2="39" stroke-width="0.65" />
+        <line x1="99"  y1="83" x2="87"  y2="101" stroke-width="0.65" />
+        <line x1="117" y1="83" x2="129" y2="101" stroke-width="0.65" />
+        <line x1="93"  y1="67" x2="72"  y2="63" stroke-width="0.6" />
+        <line x1="123" y1="67" x2="144" y2="63" stroke-width="0.6" />
+        <line x1="93"  y1="73" x2="72"  y2="77" stroke-width="0.6" />
+        <line x1="123" y1="73" x2="144" y2="77" stroke-width="0.6" />
+      </g>
+    </defs>
+  </svg>
+
+  <div class="six-eyes-overlay" id="sixEyesOverlay" aria-hidden="true">
+    <!-- LEFT EYE (Tall, expressive, gently arched MAPPA Gojo silhouette) -->
+    <svg class="eye-svg left" viewBox="0 0 220 148" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <clipPath id="gojo-clip-left">
+          <path d="M 24,52 C 56,22 138,20 186,62 C 192,68 194,76 190,84 C 156,120 78,120 38,94 C 24,84 20,66 24,52 Z" />
+        </clipPath>
+        <clipPath id="iris-clip-left">
+          <circle cx="108" cy="70" r="41" />
+        </clipPath>
+      </defs>
+
+      <!-- Delicate double-eyelid fold arching cleanly over the lid -->
+      <path d="M 42,20 C 90,6 148,14 186,46" fill="none" stroke="rgba(216,210,236,0.36)" stroke-width="1.5" stroke-linecap="round" />
+
+      <g id="gojo-left-interior" clip-path="url(#gojo-clip-left)">
+        <!-- Luminous Sclera -->
+        <rect x="0" y="0" width="220" height="148" fill="url(#gojo-sclera)" />
+
+        <!-- MAPPA SIX EYES IRIS -->
+        <g clip-path="url(#iris-clip-left)">
+          <circle cx="108" cy="70" r="41" fill="url(#six-iris-base)" />
+
+          <!-- Billowing sunlit white cloud ring -->
+          <g class="iris-nebula" filter="url(#iris-cloud-filter)" opacity="0.9">
+            <circle cx="108" cy="70" r="28" fill="none" stroke="#ffffff" stroke-width="10" stroke-dasharray="24 9 15 7 22 8" />
+            <ellipse cx="108" cy="98" rx="24" ry="10" fill="#ffffff" />
+            <ellipse cx="86"  cy="54" rx="12" ry="8" transform="rotate(-30 86 54)" fill="#e0faff" />
+            <ellipse cx="132" cy="56" rx="11" ry="7" transform="rotate(25 132 56)" fill="#ffffff" />
+          </g>
+
+          <circle cx="108" cy="70" r="41" fill="url(#six-iris-glow)" />
+          <use href="#six-iris-fibers" />
+          <circle cx="108" cy="70" r="16" fill="none" stroke="rgba(12, 74, 110, 0.34)" stroke-width="1.2" />
+
+          <!-- Deep navy slightly-oval pupil -->
+          <ellipse cx="108" cy="70" rx="6.8" ry="8.6" fill="url(#six-pupil-grad)" />
+
+          <!-- Upper iris shadow -->
+          <circle cx="108" cy="70" r="41" fill="url(#six-iris-top-shade)" />
+
+          <!-- Crisp MAPPA white specular highlights -->
+          <ellipse cx="81" cy="76" rx="8.2" ry="4.0" transform="rotate(-24 81 76)" fill="#ffffff" />
+          <path d="M 104,50 Q 120,47 131,57" fill="none" stroke="#ffffff" stroke-width="3.6" stroke-linecap="round" opacity="0.95" />
+          <circle cx="96"  cy="52" r="2.3" fill="#ffffff" opacity="0.9" />
+          <circle cx="123" cy="90" r="2.6" fill="#ffffff" opacity="0.88" />
+        </g>
+
+        <!-- Thick deep-navy outer limbal ring -->
+        <circle cx="108" cy="70" r="40.5" fill="none" stroke="#0a2859" stroke-width="3.6" />
+        <circle cx="108" cy="70" r="37" fill="none" stroke="#164e8a" stroke-width="1.3" stroke-dasharray="6 3 9 2" opacity="0.72" />
+
+        <!-- Soft upper eyelid cast shadow -->
+        <path d="M 14,42 C 56,12 142,10 198,56 L 198,74 C 142,30 56,30 14,62 Z" fill="rgba(15, 32, 66, 0.24)" />
+
+        <!-- Blink shutters -->
+        <rect class="eyelid-top" x="0" y="0" width="220" height="78" fill="#000000" />
+        <rect class="eyelid-bottom" x="0" y="70" width="220" height="78" fill="#000000" />
+      </g>
+
+      <!-- GOJO'S FEATHERY LAVENDER-SILVER UPPER EYELASHES -->
+      <g fill="url(#lash-grad)" stroke="#5b5475" stroke-width="0.85" stroke-linejoin="round">
+        <!-- High, graceful upper lash arch -->
+        <path d="M 12,50 C 52,16 142,14 192,62 L 196,82 L 188,80 C 176,60 134,28 64,30 C 42,31 28,41 22,52 Z" />
+        <!-- Lush feathery lash tufts sweeping upward & outward -->
+        <path d="M 26,42 C 15,34 6,25 1,16 C 11,23 20,30 33,38 Z" />
+        <path d="M 38,34 C 27,24 19,15 13,6 C 23,14 32,22 46,31 Z" />
+        <path d="M 54,27 C 44,17 36,9 31,2 C 41,10 50,17 62,25 Z" />
+        <path d="M 74,23 C 66,14 59,7 55,1 C 64,8 72,14 82,22 Z" />
+        <path d="M 96,22 C 89,14 84,8 80,3 C 88,9 95,14 104,22 Z" />
+        <path d="M 118,24 C 113,17 109,12 106,8 C 113,13 118,18 126,26 Z" />
+        <!-- Sleek outer wing flick -->
+        <path d="M 19,52 C 11,53 5,50 1,45 C 8,48 14,49 23,49 Z" />
+      </g>
+
+      <!-- Soft rounded lower eyelid contour + delicate feathery lower lashes -->
+      <path d="M 190,84 C 156,120 78,120 38,94 C 24,84 20,66 24,52"
+            fill="none" stroke="#b9b2d1" stroke-width="1.7" stroke-linejoin="round" />
+      <g stroke="#c9c2e0" stroke-width="1.2" stroke-linecap="round" opacity="0.8">
+        <path d="M 46,98 L 38,107" />
+        <path d="M 60,105 L 53,115" />
+        <path d="M 76,110 L 71,120" />
+        <path d="M 94,113 L 91,123" />
+        <path d="M 112,114 L 111,124" />
+        <path d="M 130,113 L 132,122" />
+      </g>
+    </svg>
+
+    <!-- RIGHT EYE (Mirrored) -->
+    <svg class="eye-svg right" viewBox="0 0 220 148" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <clipPath id="gojo-clip-right">
+          <path d="M 24,52 C 56,22 138,20 186,62 C 192,68 194,76 190,84 C 156,120 78,120 38,94 C 24,84 20,66 24,52 Z" />
+        </clipPath>
+      </defs>
+      <path d="M 42,20 C 90,6 148,14 186,46" fill="none" stroke="rgba(216,210,236,0.36)" stroke-width="1.5" stroke-linecap="round" />
+      <g id="gojo-right-interior" clip-path="url(#gojo-clip-right)"></g>
+      <g fill="url(#lash-grad)" stroke="#5b5475" stroke-width="0.85" stroke-linejoin="round">
+        <path d="M 12,50 C 52,16 142,14 192,62 L 196,82 L 188,80 C 176,60 134,28 64,30 C 42,31 28,41 22,52 Z" />
+        <path d="M 26,42 C 15,34 6,25 1,16 C 11,23 20,30 33,38 Z" />
+        <path d="M 38,34 C 27,24 19,15 13,6 C 23,14 32,22 46,31 Z" />
+        <path d="M 54,27 C 44,17 36,9 31,2 C 41,10 50,17 62,25 Z" />
+        <path d="M 74,23 C 66,14 59,7 55,1 C 64,8 72,14 82,22 Z" />
+        <path d="M 96,22 C 89,14 84,8 80,3 C 88,9 95,14 104,22 Z" />
+        <path d="M 118,24 C 113,17 109,12 106,8 C 113,13 118,18 126,26 Z" />
+        <path d="M 19,52 C 11,53 5,50 1,45 C 8,48 14,49 23,49 Z" />
+      </g>
+      <path d="M 190,84 C 156,120 78,120 38,94 C 24,84 20,66 24,52"
+            fill="none" stroke="#b9b2d1" stroke-width="1.7" stroke-linejoin="round" />
+      <g stroke="#c9c2e0" stroke-width="1.2" stroke-linecap="round" opacity="0.8">
+        <path d="M 46,98 L 38,107" />
+        <path d="M 60,105 L 53,115" />
+        <path d="M 76,110 L 71,120" />
+        <path d="M 94,113 L 91,123" />
+        <path d="M 112,114 L 111,124" />
+        <path d="M 130,113 L 132,122" />
+      </g>
+    </svg>
+  </div>
+
+  <div class="hud" role="status" aria-label="Gojo Technique Stage">
+    <p class="jp-title" id="jpTitle">無量空処</p>
+    <p class="en-title" id="enTitle">Unlimited Void</p>
+    <div class="progress-bars" role="tablist" aria-label="Technique Stages">
+      <button class="bar-btn active" data-goto="1" title="Unlimited Void"><span class="bar-line"></span></button>
+      <button class="bar-btn" data-goto="2" title="Lapse: Blue"><span class="bar-line"></span></button>
+      <button class="bar-btn" data-goto="3" title="Reversal: Red"><span class="bar-line"></span></button>
+      <button class="bar-btn" data-goto="4" title="Hollow Purple"><span class="bar-line"></span></button>
+    </div>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+    import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+    // Clone left Six Eye into right eye
+    const leftInt = document.getElementById('gojo-left-interior');
+    const rightInt = document.getElementById('gojo-right-interior');
+    Array.from(leftInt.children).forEach((child) => rightInt.appendChild(child.cloneNode(true)));
+
+    // ==================== RENDERER, SCENE, CAMERA ====================
+    const container = document.getElementById('webgl-container');
+    const scene = new THREE.Scene();
+
+    const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 200);
+    camera.position.set(0, 0.55, 11.2);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.05;
+    container.appendChild(renderer.domElement);
+
+    // HDR Unreal Bloom Post-Processing (balanced so 3D plasma veins stay visible)
+    const composer = new EffectComposer(renderer);
+    composer.addPass(new RenderPass(scene, camera));
+    const bloomPass = new UnrealBloomPass(
+      new THREE.Vector2(window.innerWidth, window.innerHeight),
+      0.92,  // strength
+      0.55,  // radius
+      0.28   // threshold
+    );
+    composer.addPass(bloomPass);
+
+    // ==================== SHARED GLSL 3D SIMPLEX NOISE ====================
+    const NOISE_GLSL = `
+      vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+      vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+      vec4 permute(vec4 x) { return mod289(((x * 34.0) + 1.0) * x); }
+      vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+
+      float snoise(vec3 v) {
+        const vec2 C = vec2(1.0 / 6.0, 1.0 / 3.0);
+        const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+        vec3 i  = floor(v + dot(v, C.yyy));
+        vec3 x0 = v - i + dot(i, C.xxx);
+        vec3 g = step(x0.yzx, x0.xyz);
+        vec3 l = 1.0 - g;
+        vec3 i1 = min(g.xyz, l.zxy);
+        vec3 i2 = max(g.xyz, l.zxy);
+        vec3 x1 = x0 - i1 + C.xxx;
+        vec3 x2 = x0 - i2 + C.yyy;
+        vec3 x3 = x0 - D.yyy;
+        i = mod289(i);
+        vec4 p = permute(permute(permute(
+                  i.z + vec4(0.0, i1.z, i2.z, 1.0))
+                + i.y + vec4(0.0, i1.y, i2.y, 1.0))
+                + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+        float n_ = 0.142857142857;
+        vec3 ns = n_ * D.wyz - D.xzx;
+        vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+        vec4 x_ = floor(j * ns.z);
+        vec4 y_ = floor(j - 7.0 * x_);
+        vec4 x = x_ * ns.x + ns.yyyy;
+        vec4 y = y_ * ns.x + ns.yyyy;
+        vec4 h = 1.0 - abs(x) - abs(y);
+        vec4 b0 = vec4(x.xy, y.xy);
+        vec4 b1 = vec4(x.zw, y.zw);
+        vec4 s0 = floor(b0) * 2.0 + 1.0;
+        vec4 s1 = floor(b1) * 2.0 + 1.0;
+        vec4 sh = -step(h, vec4(0.0));
+        vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy;
+        vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww;
+        vec3 p0 = vec3(a0.xy, h.x);
+        vec3 p1 = vec3(a0.zw, h.y);
+        vec3 p2 = vec3(a1.xy, h.z);
+        vec3 p3 = vec3(a1.zw, h.w);
+        vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2,p2), dot(p3,p3)));
+        p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+        vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+        m = m * m;
+        return 42.0 * dot(m * m, vec4(dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3)));
+      }
+
+      float fbm(vec3 p) {
+        float v = 0.0;
+        float a = 0.5;
+        for (int i = 0; i < 4; i++) {
+          v += a * snoise(p);
+          p *= 2.05;
+          a *= 0.5;
+        }
+        return v;
+      }
+    `;
+
+    // ==================== 1. CUSTOM 3D PLASMA ORB FACTORY ====================
+    function createPlasmaOrb(coreColorHex, midColorHex, rimColorHex, turbulence = 0.18) {
+      const geo = new THREE.IcosahedronGeometry(1.0, 48);
+      const mat = new THREE.ShaderMaterial({
+        uniforms: {
+          uTime: { value: 0 },
+          uOpacity: { value: 0 },
+          uCoreColor: { value: new THREE.Color(coreColorHex) },
+          uMidColor:  { value: new THREE.Color(midColorHex) },
+          uRimColor:  { value: new THREE.Color(rimColorHex) },
+          uTurbulence: { value: turbulence }
+        },
+        vertexShader: `
+          uniform float uTime;
+          uniform float uTurbulence;
+          varying vec3 vNormal;
+          varying vec3 vViewPos;
+          varying float vNoise;
+          ${NOISE_GLSL}
+          void main() {
+            float n = fbm(position * 2.4 + vec3(uTime * 1.1, -uTime * 0.85, uTime * 0.6));
+            vNoise = n;
+            vec3 displaced = position + normal * (n * uTurbulence);
+            vec4 mvPos = modelViewMatrix * vec4(displaced, 1.0);
+            vViewPos = -mvPos.xyz;
+            vNormal = normalize(normalMatrix * normal);
+            gl_Position = projectionMatrix * mvPos;
+          }
+        `,
+        fragmentShader: `
+          uniform float uOpacity;
+          uniform vec3 uCoreColor;
+          uniform vec3 uMidColor;
+          uniform vec3 uRimColor;
+          varying vec3 vNormal;
+          varying vec3 vViewPos;
+          varying float vNoise;
+          void main() {
+            vec3 V = normalize(vViewPos);
+            vec3 N = normalize(vNormal);
+            float fresnel = pow(1.0 - max(dot(N, V), 0.0), 2.4);
+            float core = pow(max(dot(N, V), 0.0), 1.8);
+            float bands = smoothstep(-0.45, 0.55, vNoise);
+
+            // Rich swirling plasma veins instead of flat white blowout
+            vec3 deepCol = uRimColor * 0.45;
+            vec3 col = mix(deepCol, uMidColor * 1.15, bands);
+            col = mix(col, uCoreColor * 1.1, pow(bands, 3.0) * core * 0.85);
+            col += uRimColor * fresnel * 2.1;
+
+            gl_FragColor = vec4(col, uOpacity);
+          }
+        `,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+      return new THREE.Mesh(geo, mat);
+    }
+
+    const orbBlue   = createPlasmaOrb('#ffffff', '#38bdf8', '#0284c7', 0.16);
+    const orbRed    = createPlasmaOrb('#ffffff', '#ff3b3b', '#b91c1c', 0.18);
+    const orbPurple = createPlasmaOrb('#ffffff', '#e879f9', '#7e22ce', 0.24);
+    scene.add(orbBlue, orbRed, orbPurple);
+
+    // Outer 3D twisting energy rings for Hollow Purple
+    const purpleRingsGroup = new THREE.Group();
+    const ringMat = new THREE.MeshBasicMaterial({
+      color: 0xd8b4fe,
+      transparent: true,
+      opacity: 0,
+      blending: THREE.AdditiveBlending,
+      side: THREE.DoubleSide,
+      depthWrite: false
+    });
+    const ring1 = new THREE.Mesh(new THREE.TorusGeometry(2.35, 0.018, 16, 128), ringMat);
+    const ring2 = new THREE.Mesh(new THREE.TorusGeometry(2.85, 0.012, 16, 128), ringMat.clone());
+    ring2.material.color.setHex(0x67e8f9);
+    purpleRingsGroup.add(ring1, ring2);
+    scene.add(purpleRingsGroup);
+
+    // ==================== 2. UNLIMITED VOID (3D BLACK HOLE + ACCRETION DISK) ====================
+    const voidGroup = new THREE.Group();
+
+    // Event Horizon pitch-black core
+    const blackHoleMat = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 1 });
+    const blackHole = new THREE.Mesh(new THREE.SphereGeometry(1.38, 64, 64), blackHoleMat);
+    voidGroup.add(blackHole);
+
+    // Blinding Photon Ring (Fresnel Halo around Black Hole)
+    const photonMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uOpacity: { value: 1 }
+      },
+      vertexShader: `
+        varying vec3 vNormal;
+        varying vec3 vViewPos;
+        void main() {
+          vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+          vViewPos = -mvPos.xyz;
+          vNormal = normalize(normalMatrix * normal);
+          gl_Position = projectionMatrix * mvPos;
+        }
+      `,
+      fragmentShader: `
+        uniform float uTime;
+        uniform float uOpacity;
+        varying vec3 vNormal;
+        varying vec3 vViewPos;
+        void main() {
+          float f = 1.0 - max(dot(normalize(vNormal), normalize(vViewPos)), 0.0);
+          float ring = pow(f, 3.6) * 2.6;
+          vec3 col = mix(vec3(0.22, 0.74, 0.98), vec3(0.95, 0.98, 1.0), pow(f, 6.0));
+          gl_FragColor = vec4(col * ring, ring * uOpacity);
+        }
+      `,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+    const photonSphere = new THREE.Mesh(new THREE.SphereGeometry(1.56, 64, 64), photonMat);
+    voidGroup.add(photonSphere);
+
+    // Swirling 3D Accretion Disk (Custom GLSL polar vortex shader)
+    const diskMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uOpacity: { value: 1 }
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float uTime;
+        uniform float uOpacity;
+        varying vec2 vUv;
+        ${NOISE_GLSL}
+        void main() {
+          vec2 p = (vUv - 0.5) * 2.0;
+          float r = length(p);
+          if (r < 0.34 || r > 1.0) discard;
+
+          float angle = atan(p.y, p.x);
+          float swirl = angle + (1.8 / (r + 0.15)) - uTime * 0.85;
+          float n1 = snoise(vec3(cos(swirl) * 2.6, sin(swirl) * 2.6, r * 4.0 - uTime * 0.4));
+          float n2 = snoise(vec3(cos(swirl * 2.0) * 4.5, sin(swirl * 2.0) * 4.5, r * 7.0));
+          float bands = smoothstep(-0.35, 0.85, n1 * 0.65 + n2 * 0.35);
+
+          float innerFade = smoothstep(0.34, 0.44, r);
+          float outerFade = 1.0 - smoothstep(0.62, 1.0, r);
+          float mask = innerFade * outerFade * bands;
+
+          vec3 innerCol = vec3(0.95, 0.98, 1.0);
+          vec3 midCol   = vec3(0.22, 0.74, 0.98);
+          vec3 outerCol = vec3(0.55, 0.25, 0.95);
+
+          vec3 col = mix(innerCol, midCol, smoothstep(0.36, 0.6, r));
+          col = mix(col, outerCol, smoothstep(0.58, 0.92, r));
+
+          gl_FragColor = vec4(col * 1.9, mask * uOpacity * 0.95);
+        }
+      `,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      side: THREE.DoubleSide,
+      depthWrite: false
+    });
+    const accretionDisk = new THREE.Mesh(new THREE.PlaneGeometry(8.6, 8.6), diskMat);
+    accretionDisk.rotation.x = -Math.PI * 0.39;
+    accretionDisk.rotation.y = 0.18;
+    voidGroup.add(accretionDisk);
+
+    scene.add(voidGroup);
+
+    // ==================== 3. 4,500 GPU 3D CURSED-ENERGY PARTICLES ====================
+    const PARTICLE_COUNT = 4500;
+    const pGeo = new THREE.BufferGeometry();
+    const pPos = new Float32Array(PARTICLE_COUNT * 3);
+    const pData = new Float32Array(PARTICLE_COUNT * 4); // radius, angle, speed, height
+
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const r = 1.8 + Math.pow(Math.random(), 1.5) * 14.0;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = (Math.random() - 0.5) * Math.PI;
+      pPos[i * 3]     = r * Math.cos(theta) * Math.cos(phi);
+      pPos[i * 3 + 1] = r * Math.sin(phi) * 0.75;
+      pPos[i * 3 + 2] = r * Math.sin(theta) * Math.cos(phi);
+
+      pData[i * 4]     = r;
+      pData[i * 4 + 1] = theta;
+      pData[i * 4 + 2] = 0.25 + Math.random() * 0.9;
+      pData[i * 4 + 3] = Math.random(); // color mix seed
+    }
+
+    pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+    pGeo.setAttribute('aSeed', new THREE.BufferAttribute(pData, 4));
+
+    const pMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uColorA: { value: new THREE.Color('#38bdf8') },
+        uColorB: { value: new THREE.Color('#ffffff') },
+        uStage:  { value: 1.0 }
+      },
+      vertexShader: `
+        attribute vec4 aSeed;
+        uniform float uTime;
+        uniform float uStage;
+        varying float vAlpha;
+        varying float vMix;
+        void main() {
+          vec3 pos = position;
+          float speed = aSeed.z * (uStage > 3.5 ? 1.45 : 0.45);
+          float ang = uTime * speed * 0.35;
+          float c = cos(ang);
+          float s = sin(ang);
+          pos.xz = mat2(c, -s, s, c) * pos.xz;
+
+          // Subtle gravitational pull/pulse
+          float wave = sin(uTime * 1.4 + aSeed.x * 0.8) * 0.14;
+          pos *= (1.0 + wave * 0.08);
+
+          vec4 mvPos = modelViewMatrix * vec4(pos, 1.0);
+          gl_Position = projectionMatrix * mvPos;
+          gl_PointSize = (18.0 + aSeed.w * 20.0) / -mvPos.z;
+          vAlpha = smoothstep(26.0, 4.0, -mvPos.z) * (0.35 + aSeed.w * 0.65);
+          vMix = aSeed.w;
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 uColorA;
+        uniform vec3 uColorB;
+        varying float vAlpha;
+        varying float vMix;
+        void main() {
+          float d = length(gl_PointCoord - vec2(0.5));
+          if (d > 0.5) discard;
+          float glow = pow(1.0 - d * 2.0, 2.2);
+          vec3 col = mix(uColorA, uColorB, vMix);
+          gl_FragColor = vec4(col * 1.6, glow * vAlpha);
+        }
+      `,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+
+    const particles = new THREE.Points(pGeo, pMat);
+    scene.add(particles);
+
+    // ==================== 4. STAGE CHOREOGRAPHY & INTERACTION ====================
+    const STAGES = [
+      { id: 1, jp: '無量空処',     en: 'Unlimited Void', cA: '#38bdf8', cB: '#e0f2fe' },
+      { id: 2, jp: '術式順転・蒼', en: 'Lapse: Blue',    cA: '#0ea5e9', cB: '#bae6fd' },
+      { id: 3, jp: '術式反転・赫', en: 'Reversal: Red',  cA: '#ef4444', cB: '#38bdf8' },
+      { id: 4, jp: '虚式・茈',     en: 'Hollow Purple',  cA: '#a855f7', cB: '#f5d0fe' }
+    ];
+
+    let currentStage = 1;
+    let autoTimer = null;
+    const STAGE_HOLD_MS = 4500;
+
+    const jpTitleEl = document.getElementById('jpTitle');
+    const enTitleEl = document.getElementById('enTitle');
+    const bars = document.querySelectorAll('.bar-btn');
+
+    const targetColorA = new THREE.Color(STAGES[0].cA);
+    const targetColorB = new THREE.Color(STAGES[0].cB);
+    let bloomSpike = 0;
+
+    function setStage(id) {
+      currentStage = id;
+      document.body.setAttribute('data-stage', String(id));
+      const st = STAGES[id - 1];
+      jpTitleEl.textContent = st.jp;
+      enTitleEl.textContent = st.en;
+      targetColorA.set(st.cA);
+      targetColorB.set(st.cB);
+
+      if (id === 4) {
+        bloomSpike = 0.9; // Dramatic Hollow Purple HDR flash!
+        document.body.classList.remove('blink-run');
+        void document.body.offsetWidth;
+        document.body.classList.add('blink-run');
+        setTimeout(() => document.body.classList.remove('blink-run'), 380);
+      }
+
+      bars.forEach((b) => b.classList.toggle('active', Number(b.dataset.goto) === id));
+      scheduleNext();
+    }
+
+    function scheduleNext() {
+      clearTimeout(autoTimer);
+      autoTimer = setTimeout(() => {
+        setStage(currentStage >= STAGES.length ? 1 : currentStage + 1);
+      }, STAGE_HOLD_MS);
+    }
+
+    bars.forEach((b) => {
+      b.addEventListener('click', (e) => {
+        e.stopPropagation();
+        setStage(Number(b.dataset.goto));
+      });
+    });
+
+    container.addEventListener('click', () => {
+      setStage(currentStage >= STAGES.length ? 1 : currentStage + 1);
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' || e.code === 'ArrowRight') {
+        setStage(currentStage >= STAGES.length ? 1 : currentStage + 1);
+      } else if (e.code === 'ArrowLeft') {
+        setStage(currentStage <= 1 ? STAGES.length : currentStage - 1);
+      }
+    });
+
+    // Smooth mouse parallax for 3D depth
+    const mouse = { x: 0, y: 0 };
+    window.addEventListener('pointermove', (e) => {
+      mouse.x = (e.clientX / window.innerWidth - 0.5) * 2;
+      mouse.y = (e.clientY / window.innerHeight - 0.5) * 2;
+    });
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      composer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    scheduleNext();
+
+    // ==================== 5. MAIN 60FPS ANIMATION LOOP ====================
+    const clock = new THREE.Clock();
+    const state = {
+      voidVis: 1,
+      blueVis: 0,
+      redVis: 0,
+      purpleVis: 0,
+      blueX: -2.6,
+      redX: 2.6
+    };
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const t = clock.getElapsedTime();
+
+      // Smoothly interpolate stage visibility & positions
+      const lerp = THREE.MathUtils.lerp;
+      state.voidVis   = lerp(state.voidVis,   currentStage === 1 ? 1 : 0, 0.06);
+      state.blueVis   = lerp(state.blueVis,   currentStage === 2 || currentStage === 3 ? 1 : 0, 0.07);
+      state.redVis    = lerp(state.redVis,    currentStage === 3 ? 1 : 0, 0.07);
+      state.purpleVis = lerp(state.purpleVis, currentStage === 4 ? 1 : 0, 0.06);
+
+      const targetBlueX = currentStage === 2 ? 0 : (currentStage === 3 ? -2.45 : 0);
+      const targetRedX  = currentStage === 3 ? 2.45 : 0;
+      state.blueX = lerp(state.blueX, targetBlueX, 0.08);
+      state.redX  = lerp(state.redX,  targetRedX,  0.08);
+
+      // Position 3D phenomena slightly below Six Eyes overlay
+      const sceneY = -0.65;
+      voidGroup.visible = state.voidVis > 0.01;
+      voidGroup.position.y = sceneY;
+      voidGroup.scale.setScalar(0.5 + state.voidVis * 0.36);
+      blackHoleMat.opacity = state.voidVis;
+      photonMat.uniforms.uTime.value = t;
+      photonMat.uniforms.uOpacity.value = state.voidVis;
+      diskMat.uniforms.uTime.value = t;
+      diskMat.uniforms.uOpacity.value = state.voidVis;
+      voidGroup.rotation.z = Math.sin(t * 0.35) * 0.08;
+
+      // Update Lapse: Blue (Stage 2 & 3)
+      orbBlue.visible = state.blueVis > 0.01;
+      orbBlue.position.set(state.blueX, sceneY + Math.sin(t * 2.2) * 0.12, 0);
+      orbBlue.scale.setScalar(0.28 + state.blueVis * (currentStage === 2 ? 1.0 : 0.78));
+      orbBlue.material.uniforms.uTime.value = t;
+      orbBlue.material.uniforms.uOpacity.value = state.blueVis;
+      orbBlue.rotation.y = t * 0.9;
+
+      // Update Reversal: Red (Stage 3)
+      orbRed.visible = state.redVis > 0.01;
+      orbRed.position.set(state.redX, sceneY + Math.cos(t * 2.2) * 0.12, 0);
+      orbRed.scale.setScalar(0.28 + state.redVis * 0.78);
+      orbRed.material.uniforms.uTime.value = t * 1.15;
+      orbRed.material.uniforms.uOpacity.value = state.redVis;
+      orbRed.rotation.y = -t * 1.1;
+
+      // Update Hollow Purple (Stage 4)
+      orbPurple.visible = state.purpleVis > 0.01;
+      orbPurple.position.y = sceneY;
+      const purpleScale = 0.25 + state.purpleVis * (1.28 + Math.sin(t * 3.5) * 0.05);
+      orbPurple.scale.setScalar(purpleScale);
+      orbPurple.material.uniforms.uTime.value = t * 1.5;
+      orbPurple.material.uniforms.uOpacity.value = state.purpleVis;
+      orbPurple.rotation.y = t * 1.2;
+      orbPurple.rotation.x = t * 0.5;
+
+      purpleRingsGroup.visible = state.purpleVis > 0.01;
+      purpleRingsGroup.position.y = sceneY;
+      ring1.material.opacity = state.purpleVis * 0.55;
+      ring2.material.opacity = state.purpleVis * 0.38;
+      ring1.rotation.set(t * 0.9, t * 0.6, 0);
+      ring2.rotation.set(-t * 0.7, t * 1.1, t * 0.4);
+      purpleRingsGroup.scale.setScalar(0.42 + state.purpleVis * 0.42);
+
+      // Update Particles
+      pMat.uniforms.uTime.value = t;
+      pMat.uniforms.uStage.value = lerp(pMat.uniforms.uStage.value, currentStage, 0.05);
+      pMat.uniforms.uColorA.value.lerp(targetColorA, 0.05);
+      pMat.uniforms.uColorB.value.lerp(targetColorB, 0.05);
+
+      // Dynamic HDR Bloom intensity
+      bloomSpike *= 0.91;
+      bloomPass.strength = 0.88 + (currentStage === 4 ? 0.28 : 0) + bloomSpike;
+
+      // Interactive 3D Camera Parallax
+      camera.position.x = lerp(camera.position.x, mouse.x * 1.35, 0.045);
+      camera.position.y = lerp(camera.position.y, -mouse.y * 0.85 + 0.45, 0.045);
+      camera.lookAt(0, sceneY * 0.35, 0);
+
+      composer.render();
+    }
+
+    animate();
+  </script>
+</body>
+</html>
